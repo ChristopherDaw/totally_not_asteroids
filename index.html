@@ -1,4 +1,6 @@
 <!DOCTYPE html>
+<html>
+
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -7,17 +9,17 @@
     <title>480 Final - Chittim_Daw</title>
 
     <link href="resources/bootstrap.min.css" rel="stylesheet">
-    <link href="resources/custom2016.css" rel="stylesheet">
+    <link href="css/styles.css" rel="stylesheet">
 
-    <script src="glUtil.js"></script>
+    <script src="renderer/glUtil.js"></script>
+    <script src="renderer/matrix.js"></script>
+    <script src="renderer/cube.js"></script>
+    <script src="renderer/sphere.js"></script>
+    <script src="renderer/renderer.js"></script>
+
+    <script src="game/gameScene.js"></script>
+
     <script src="uiUtil.js"></script>
-    <script src="matrix.js"></script>
-    <script src="cube.js"></script>
-    <script src="sphere.js"></script>
-    <script src="task1.js"></script>
-    <script src="task2.js"></script>
-    <script src="task5.js"></script>
-    <script src="task6.js"></script>
 
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -26,18 +28,25 @@
     <![endif]-->
 </head>
 
-<body onload="setupAssignment();">
+<body onload="setup();">
+    <div id="container" class="canvas-container">
+        <!--wdith and height automatically changed to screen size in glUtil.js-->
+        <canvas id="game" width="16" height="9"></canvas>
 
-        
-            <div class="canvas-container">
-                <canvas id="task-6" width="820" height="461"></canvas>
-            </div>
-
-            
+        <div id="controls">
+            <button id="up-button" class="controls-button">↑</button>
+            <button id="down-button" class="controls-button">↓</button>
+            <button id="left-button" class="controls-button">←</button>
+            <button id="right-button" class="controls-button">→</button>
+        </div>
+    </div>
     <script>
-        function setupAssignment() { 
-            setupTask("task-6", Task6, true);
+        function setup() {
+            setupTask("game", Game, true);
+
+            window.screen.orientation.lock('landscape');
         }
     </script>
 </body>
+
 </html>

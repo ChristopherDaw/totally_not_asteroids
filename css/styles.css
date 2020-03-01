@@ -1,0 +1,60 @@
+html,
+body {
+    width: 100%;
+    height: 100%;
+    margin: 0px;
+    border: 0;
+    overflow: hidden;
+    /*  Disable scrollbars */
+    display: block;
+    /* No floating content on sides */
+}
+
+/* Controls Styles */
+
+#controls {
+    bottom: 0;
+    position: absolute;
+    width: 100%;
+}
+
+.controls-button {
+    font-size: 50px;
+    cursor: pointer;
+    display: inline-block;
+    width: 25vh;
+    height: 25vh;
+    text-align: center;
+    margin: 25px;
+    border-radius: 15px;
+    border: none;
+    color: #FFFFFF;
+    background-color: rgba(0, 0, 0, 0.5);
+    text-shadow: 0 0.04em 0.04em rgba(0, 0, 0, 0.35);
+    text-align: center;
+    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.404);
+}
+
+#up-button{
+    bottom: 30vh;
+    right: 0px;
+    position: absolute;
+}
+
+#down-button{
+    bottom: 0px;
+    right: 0px;
+    position: absolute;
+}
+
+#left-button{
+    bottom: 0vh;
+    left: 0px;
+    position: absolute;
+}
+
+#right-button{
+    bottom: 0px;
+    left: 30vh;
+    position: absolute;
+}
