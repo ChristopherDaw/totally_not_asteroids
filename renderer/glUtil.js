@@ -15,6 +15,18 @@ function setupTask(canvasId, taskFunction, useGl) {
         }
     }
 
+    if (window.ismobile()) {
+        var buttonDiv = `
+            <div id="controls">
+                <button id="up-button" class="controls-button">↑</button>
+                <button id="down-button" class="controls-button">↓</button>
+                <button id="left-button" class="controls-button">←</button>
+                <button id="right-button" class="controls-button">→</button>
+            </div>
+        `;
+        document.getElementById("controls").innerHTML = buttonDiv;
+    }
+
     var renderWidth, renderHeight;
     function computeCanvasSize() {
         renderWidth = window.innerWidth;

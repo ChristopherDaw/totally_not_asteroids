@@ -11,6 +11,9 @@
     <link href="resources/bootstrap.min.css" rel="stylesheet">
     <link href="css/styles.css" rel="stylesheet">
 
+    <!-- mobileCheck.js adds a boolean window.ismobile if user is on mobile device -->
+    <script src="renderer/mobileCheck.js"></script>
+
     <script src="renderer/glUtil.js"></script>
     <script src="renderer/matrix.js"></script>
     <script src="renderer/cube.js"></script>
@@ -32,10 +35,8 @@
         <canvas id="game" width="16" height="9"></canvas>
 
         <div id="controls">
-            <button id="up-button" class="controls-button">↑</button>
-            <button id="down-button" class="controls-button">↓</button>
-            <button id="left-button" class="controls-button">←</button>
-            <button id="right-button" class="controls-button">→</button>
+            <!-- This content will be filled by setupTask if the user is mobile
+            -->
         </div>
     </div>
     <script>
