@@ -55,6 +55,6 @@ body {
 
 #right-button{
     bottom: 0px;
-    left: 30vh;
+    right: 0px;
     position: absolute;
 }
