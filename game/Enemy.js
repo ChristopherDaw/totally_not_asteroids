@@ -10,13 +10,13 @@ class Enemy {
     // TODO: Figure out offscreen bounds by math not guess and check
     randomLoc() {
         if (Math.random() < 0.5) {
-            var x = ((Math.random() < 0.5) ? -10 : 10);
+            var x = ((Math.random() < 0.5) ? -15 : 15);
             var y = Math.random() * 3;
         } else {
             var x = Math.random() * 5;
-            var y = ((Math.random() < 0.5) ? -5 : 5);
+            var y = ((Math.random() < 0.5) ? -10 : 10);
         }
-        return [x, y, -3];
+        return [x, y, -6];
     }
 
     get_rotation(playerLoc) {

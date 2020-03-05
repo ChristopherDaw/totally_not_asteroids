@@ -62,5 +62,14 @@ var ControlsManager = {
             }
             , false);
         }
+    
+        //Add listener to Start Button on Menu
+        document.getElementById("start-button").addEventListener("click", function (event) {
+            document.getElementById("menu").style.display = "none"
+            document.getElementById("controls").style.display = "block"
+
+            self.state = GameState.GAME;
+        }
+        , false);
     }
 }

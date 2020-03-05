@@ -58,3 +58,33 @@ body {
     right: 0px;
     position: absolute;
 }
+
+/* Menu Styles */
+
+#menu {
+    bottom: 50%;
+    width: 100%;
+    position: absolute;
+    text-align: center;
+}
+
+h1{
+    font-size: 100px;
+}
+
+#start-button{
+    font-size: 50px;
+    cursor: pointer;
+    display: inline-block;
+    width: 25vh;
+    height: 25vh;
+    text-align: center;
+    margin: 25px;
+    border-radius: 15px;
+    border: none;
+    color: #FFFFFF;
+    background-color: rgba(0, 0, 0, 0.5);
+    text-shadow: 0 0.04em 0.04em rgba(0, 0, 0, 0.35);
+    text-align: center;
+    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.404);
+}
