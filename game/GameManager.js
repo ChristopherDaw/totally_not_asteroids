@@ -58,8 +58,8 @@ Game.prototype.render = function(canvas, gl, w, h) {
 
     //We also need to use a timer (like date above) and as time proceeds transform our enemy objects/render new ones
     /* Enemy generation code */
-    // spawn new enemy every 5 seconds
-    if (now % 5000 <= 10) {
+    // spawn new enemy every 5 seconds (uses <= 15 because the render isn't called every millisecond)
+    if (now % 5000 <= 15) {
         // New enemy
         //this.enemies.push(new Enemy([-10,0,-3], 0, [0,.1,0], now));
         //this.enemies.push(new Enemy([0,5,-3], 270, [0,.1,0], now));

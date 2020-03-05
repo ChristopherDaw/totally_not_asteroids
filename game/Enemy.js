@@ -4,6 +4,7 @@ class Enemy {
         this.rotation = this.get_rotation(playerLoc);
         this.translateVector = translateVector;
         this.borntime = borntime;
+
     }
 
     // TODO: Figure out offscreen bounds by math not guess and check
