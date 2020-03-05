@@ -5,14 +5,14 @@ var LambertVertexSource = `
     attribute vec3 Position;
     attribute vec3 Normal;
 
-    varying vec3 Color;   
-    
+    varying vec3 Color;
+
     // Constants you should use to compute the final color
     const vec3 LightPosition = vec3(4, 1, 4);
     const vec3 LightIntensity = vec3(20);
     const vec3 ka = 0.3*vec3(1, 0.5, 0.5);
     const vec3 kd = 0.7*vec3(1, 0.5, 0.5);
-    
+
     void main() {
         gl_Position = ModelViewProjection*vec4(Position,1.0);
 
@@ -21,15 +21,15 @@ var LambertVertexSource = `
 
         //All model vectors are converted to world space using Model matrix
 
-        Color = ka + kd * (LightIntensity / pow(distance(vec4(LightPosition,1.0), Model*vec4(Position,1.0)), 2.0)) 
+        Color = ka + kd * (LightIntensity / pow(distance(vec4(LightPosition,1.0), Model*vec4(Position,1.0)), 2.0))
         * max(dot(normalize(vec4(LightPosition,1.0) - Model*vec4(Position,1.0)), Model*vec4(Normal,0.0)), 0.0);
     }
 `;
 var LambertFragmentSource = `
     precision highp float;
-    
+
     varying vec3 Color;
-    
+
     // TODO: Implement a fragment shader that copies Color into gl_FragColor
     // Hint: Color is RGB; you need to extend it with an alpha channel to assign it to gl_FragColor
 
@@ -45,7 +45,7 @@ function createShaderObject(gl, shaderSource, shaderType) {
     gl.shaderSource(shaderObject, shaderSource);
     // Compile the shader
     gl.compileShader(shaderObject);
-    
+
     // Check if there were any compile errors
     if (!gl.getShaderParameter(shaderObject, gl.COMPILE_STATUS)) {
         // If so, get the error and output some diagnostic info
@@ -54,21 +54,21 @@ function createShaderObject(gl, shaderSource, shaderType) {
         for (var i = 0; i < lines.length; ++i)
             lines[i] = ("   " + (i + 1)).slice(-4) + " | " + lines[i];
         shaderSource = lines.join("\n");
-    
+
         throw new Error(
             (shaderType == gl.FRAGMENT_SHADER ? "Fragment" : "Vertex") + " shader compilation error for shader '" + name + "':\n\n    " +
             gl.getShaderInfoLog(shaderObject).split("\n").join("\n    ") +
             "\nThe shader source code was:\n\n" +
             shaderSource);
     }
-    
+
     return shaderObject;
 }
 function createShaderProgram(gl, vertexSource, fragmentSource) {
     // Create shader objects for vertex and fragment shader
     var   vertexShader = createShaderObject(gl,   vertexSource, gl.  VERTEX_SHADER);
     var fragmentShader = createShaderObject(gl, fragmentSource, gl.FRAGMENT_SHADER);
-    
+
     // Create a shader program
     var program = gl.createProgram();
     // Attach the vertex and fragment shader to the program
@@ -76,7 +76,7 @@ function createShaderProgram(gl, vertexSource, fragmentSource) {
     gl.attachShader(program, fragmentShader);
     // Link the shaders together into a program
     gl.linkProgram(program);
-    
+
     return program;
 }
 
@@ -111,38 +111,38 @@ var ShadedTriangleMesh = function(gl, vertexPositions, vertexNormals, indices, v
 }
 
 ShadedTriangleMesh.prototype.render = function(gl, model, view, projection) {
-    
+
     gl.useProgram(this.shaderProgram);
-    
+
     // Assemble a model-view-projection matrix from the specified matrices
 
     var modelViewProjection = new SimpleMatrix();
     modelViewProjection = SimpleMatrix.multiply(projection, SimpleMatrix.multiply(view.inverse(), model))
 
-    gl.uniformMatrix4fv(gl.getUniformLocation(this.shaderProgram, "Model"), false, model.transpose().m); 
+    gl.uniformMatrix4fv(gl.getUniformLocation(this.shaderProgram, "Model"), false, model.transpose().m);
 
 
     // Pass matrix to shader uniform
     // IMPORTANT: OpenGL has different matrix conventions than our JS program. We need to transpose the matrix before passing it
     // to OpenGL to get the correct matrix in the shader.
-    gl.uniformMatrix4fv(gl.getUniformLocation(this.shaderProgram, "ModelViewProjection"), false, modelViewProjection.transpose().m); 
-    
+    gl.uniformMatrix4fv(gl.getUniformLocation(this.shaderProgram, "ModelViewProjection"), false, modelViewProjection.transpose().m);
+
     // OpenGL setup beyond this point
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexIbo);
-    
+
     gl.bindBuffer(gl.ARRAY_BUFFER, this.positionVbo);
     var positionAttrib = gl.getAttribLocation(this.shaderProgram, "Position");
     if (positionAttrib >= 0) {
         gl.enableVertexAttribArray(positionAttrib);
         gl.vertexAttribPointer(positionAttrib, 3, gl.FLOAT, false, 0, 0);
     }
-    
+
     gl.bindBuffer(gl.ARRAY_BUFFER, this.normalVbo);
     var normalAttrib = gl.getAttribLocation(this.shaderProgram, "Normal");
     if (normalAttrib >= 0) {
         gl.enableVertexAttribArray(normalAttrib);
         gl.vertexAttribPointer(normalAttrib, 3, gl.FLOAT, false, 0, 0);
     }
-    
+
     gl.drawElements(gl.TRIANGLES, this.indexCount, gl.UNSIGNED_SHORT, 0);
 }
