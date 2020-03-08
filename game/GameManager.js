@@ -7,6 +7,8 @@ const GameState = {
 var Game = function (canvas, gl) {
     this.cameraAngle = 0;
 
+    readobj("bunny.obj");
+
     //Doing some testing, we can just use these as refrence to meshes and use the render function below multiple times
     //And get multiple renders of the same mesh
     this.sphereMesh = new ShadedTriangleMesh(gl, SpherePositions, SphereNormals, SphereTriIndices, LambertVertexSource, LambertFragmentSource);
