@@ -1,6 +1,7 @@
 var LambertVertexSource = `
     uniform mat4 Model;
     uniform mat4 ModelViewProjection;
+    uniform vec3 DisplayColor;
 
     attribute vec3 Position;
     attribute vec3 Normal;
@@ -8,10 +9,12 @@ var LambertVertexSource = `
     varying vec3 Color;
 
     // Constants you should use to compute the final color
-    const vec3 LightPosition = vec3(4, 1, 4);
-    const vec3 LightIntensity = vec3(20);
-    const vec3 ka = 0.3*vec3(1, 0.5, 0.5);
-    const vec3 kd = 0.7*vec3(1, 0.5, 0.5);
+    const vec3 LightPosition = vec3(0, 0, 2);
+    const vec3 LightIntensity = vec3(40);
+    //const vec3 ka = 0.3*vec3(1, 0.5, 0.5);
+    //const vec3 kd = 0.7*vec3(1, 0.5, 0.5);
+    vec3 ka = 0.3*(1.0/255.0)*DisplayColor;
+    vec3 kd = 0.7*(1.0/255.0)*DisplayColor;
 
     void main() {
         gl_Position = ModelViewProjection*vec4(Position,1.0);
@@ -110,7 +113,7 @@ var ShadedTriangleMesh = function(gl, vertexPositions, vertexNormals, indices, v
     this.shaderProgram = createShaderProgram(gl, vertexSource, fragmentSource);
 }
 
-ShadedTriangleMesh.prototype.render = function(gl, model, view, projection) {
+ShadedTriangleMesh.prototype.render = function(gl, model, view, projection, color) {
 
     gl.useProgram(this.shaderProgram);
 
@@ -126,6 +129,8 @@ ShadedTriangleMesh.prototype.render = function(gl, model, view, projection) {
     // IMPORTANT: OpenGL has different matrix conventions than our JS program. We need to transpose the matrix before passing it
     // to OpenGL to get the correct matrix in the shader.
     gl.uniformMatrix4fv(gl.getUniformLocation(this.shaderProgram, "ModelViewProjection"), false, modelViewProjection.transpose().m);
+
+    gl.uniform3fv(gl.getUniformLocation(this.shaderProgram, "DisplayColor"), color);
 
     // OpenGL setup beyond this point
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexIbo);

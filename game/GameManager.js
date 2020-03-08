@@ -14,6 +14,7 @@ var Game = function (canvas, gl) {
     this.cubeMesh = new ShadedTriangleMesh(gl, CubePositions, CubeNormals, CubeIndices, LambertVertexSource, LambertFragmentSource);
 
     /*Initialize Controls of Player*/
+    this.playerColor = [124, 254, 240];
     this.playerLocation = [0, 0, -6]; //starting location of the player, modified in runtime to hold current location
     this.playerRotation = 90; //starting angle of player in degrees (we only need one axis of rotation)
     this.translateVector = [0, 0, 0]; //Vector used to start what keys/buttons are being pressed the value stored is how much to move in next frame
@@ -88,30 +89,28 @@ function GameLogic(self, gl, w,h) {
     //and instead interpolating our translate vector to zero every frame here
 
     /* Enemy generation code */
-    // spawn new enemy every 5 seconds (uses <= 15 because the render isn't called every millisecond)
-    if (now % 5000 <= 15) {
+    // spawn new enemy every 2.5 seconds (uses <= 15 because render isn't called every millisecond)
+    if (now % 2500 <= 15) {
         // New enemy
-        //this.enemies.push(new Enemy([-10,0,-3], 0, [0,.1,0], now));
-        //this.enemies.push(new Enemy([0,5,-3], 270, [0,.1,0], now));
-        self.enemies.push(new Enemy(self.playerLocation, [0, .1, 0], now));
+        self.enemies.push(new Enemy(self.playerLocation, now));
     }
 
     /* Enemy movement code */
     var enemyTransform;
     self.enemies.forEach(enemy => {
         // Delete enemies older than 10 seconds
-        if (now - enemy.age > 5000) {
+        if (now - enemy.age > 10000) {
             //TODO: figure out a better way
             self.enemies.shift();
             //continue;
         }
         enemyTransform = enemy.translate;
-        self.sphereMesh.render(gl, enemyTransform, view, projection);
+        self.sphereMesh.render(gl, enemyTransform, view, projection, enemy.color);
     });
 
     //Create collision detection that we check every frame here
 
     //Implement game state that changes this whole render function depending on state
 
-    self.cubeMesh.render(gl, playerTransform, view, projection);
+    self.cubeMesh.render(gl, playerTransform, view, projection, self.playerColor);
 }
