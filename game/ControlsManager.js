@@ -71,5 +71,23 @@ var ControlsManager = {
             self.state = GameState.GAME;
         }
         , false);
+
+        //Add listener to Restart Button on Menu
+        document.getElementById("restart-button").addEventListener("click", function (event) {
+            document.getElementById("end").style.display = "none"
+            document.getElementById("controls").style.display = "block"
+
+            self.state = GameState.GAME;
+        }
+        , false);
+
+        //Add listener to Restart Button on Menu
+        document.getElementById("menu-button").addEventListener("click", function (event) {
+            document.getElementById("end").style.display = "none"
+            document.getElementById("menu").style.display = "block"
+
+            self.state = GameState.MENU;
+        }
+        , false);
     }
 }

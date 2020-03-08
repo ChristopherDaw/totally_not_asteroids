@@ -80,6 +80,10 @@ class Enemy {
         return this.transform();
     }
 
+    get currentLocation(){
+        return this.location;
+    }
+
     transform() {
         // Get rotation matrix
         var angle = this.rotation + this.translateVector[0];

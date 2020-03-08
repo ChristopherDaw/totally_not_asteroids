@@ -21,8 +21,10 @@
     <script src="renderer/renderer.js"></script>
 
     <script src="game/Enemy.js"></script>
+    <script src="game/Collision.js"></script>
     <script src="game/GameManager.js"></script>
     <script src="game/ControlsManager.js"></script>
+    <script src="game/GameUI.js"></script>
 
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -41,9 +43,15 @@
             -->
         </div>
 
-        <div id="menu" style="display: none;">
+        <div id="menu" class="gameState" style="display: none;">
             <h1>Dodger</h1>
-            <button id="start-button">Start</button>
+            <button class="button" id="start-button">Start</button>
+        </div>
+        <div id="end" class="gameState" style="display: none;">
+            <h1>Game Over</h1>
+            <p>*INSERT LEADERBOARD HERE*</p>
+            <button class="button" id="menu-button">Menu</button>
+            <button class="button" id="restart-button">Retry</button>
         </div>
     </div>
     <script>
