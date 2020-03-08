@@ -17,9 +17,13 @@ var Game = function (canvas, gl) {
 
     /*Initialize Controls of Player*/
     this.playerColor = [124, 254, 240];
-    this.playerLocation = [0, 0, -6]; //starting location of the player, modified in runtime to hold current location
-    this.playerRotation = 90; //starting angle of player in degrees (we only need one axis of rotation)
-    this.translateVector = [0, 0, 0]; //Vector used to start what keys/buttons are being pressed the value stored is how much to move in next frame
+    this.playerLocation = [0, 0, -6];       //starting location of the player, modified in runtime to hold current location
+    this.playerRotation = 90;               //starting angle of player in degrees (we only need one axis of rotation)
+    this.translateVector = [0, 0, 0];       //Vector used to start what keys/buttons are being pressed the value stored is how much to move in next frame
+
+    this.playerCollisionBox = generateBoundingBox(CubePositions);  //Bounding box to detect collisions around player [min x, max x, min y, max y, min z, max z]
+    //this.playerCollisionBox *= 0.7;                                //Scale the player bounding box to make it easier
+    this.enemyCollisionBox = generateBoundingBox(SpherePositions); //Bounding box to detect collisions around enemy [min x, max x, min y, max y, min z, max z] 
 
     /*Initialize enemies*/
     this.enemies = []
@@ -49,16 +53,8 @@ Game.prototype.render = function (canvas, gl, w, h) {
             GameLogic(self, gl, w, h);
             break;
         case GameState.END:
+            EndScreen();
             break;
-    }
-}
-
-function Menu(){
-    //If Menu not displayed, display menu
-    //Hide controls
-    if(document.getElementById("menu").style.display == "none"){
-        document.getElementById("menu").style.display = "block";
-        document.getElementById("controls").style.display = "none";
     }
 }
 
@@ -107,7 +103,14 @@ function GameLogic(self, gl, w,h) {
             //continue;
         }
         enemyTransform = enemy.translate;
+        
         self.sphereMesh.render(gl, enemyTransform, view, projection, enemy.color);
+
+        //Detect if we are colliding with player
+        if(BoxCollision(enemy.currentLocation, self.enemyCollisionBox, self.playerLocation, self.playerCollisionBox)){
+            self.state = GameState.END;
+            ResetGame(self);
+        }
     });
 
     //Create collision detection that we check every frame here
@@ -115,4 +118,14 @@ function GameLogic(self, gl, w,h) {
     //Implement game state that changes this whole render function depending on state
 
     self.cubeMesh.render(gl, playerTransform, view, projection, self.playerColor);
+}
+
+function ResetGame (self){
+    //Reset Player to defaults
+    self.playerLocation = [0, 0, -6];       
+    self.playerRotation = 90;               
+    self.translateVector = [0, 0, 0];
+
+    //Remove all enemies
+    self.enemies = []
 }
