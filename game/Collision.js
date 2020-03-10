@@ -9,29 +9,27 @@ function BoxCollision(locationA, boxA, locationB, boxB) {
            (locationA[1] + boxA[2] <= locationB[1] + boxB[3] && locationA[1] + boxA[3] >= locationB[1] + boxB[2]);
 }
 
-function generateBoundingBox(points){
+function generateBoundingBox(points, scaleFactor){
     var minX = 0, maxX = 0, minY = 0, maxY = 0, minZ = 0, maxZ = 0;
 
-    for(var i = 0; i < points.length; i++){
+    for(var i = 0; i < points.length; i+=3){
         //Determine if max or min X
-        if(points[i] <= minX)
-            minX = points[i];
-        if(points[i] >= maxX)
-            maxX = points[i];
-        
-        //Determine if max or min Y
-        if(points[i+1] <= minY)
-            minY = points[i+1];
-        if(points[i+1] >= maxY)
-            maxY = points[i+1];
-        
-        //Determine if max or min Z
-        if(points[i+2] <= minZ)
-            minZ = points[i+2];
-        if(points[i+2] >= maxZ)
-            maxZ = points[i+2];
+        if(points[i] * scaleFactor <= minX)
+            minX = points[i] * scaleFactor;
+        if(points[i] * scaleFactor >= maxX)
+            maxX = points[i] * scaleFactor;
 
-        i += 3;
+        //Determine if max or min Y
+        if(points[i+1] * scaleFactor <= minY)
+            minY = points[i+1] * scaleFactor;
+        if(points[i+1] * scaleFactor >= maxY)
+            maxY = points[i+1] * scaleFactor;
+
+        //Determine if max or min Z
+        if(points[i+2] * scaleFactor <= minZ)
+            minZ = points[i+2] * scaleFactor;
+        if(points[i+2] * scaleFactor >= maxZ)
+            maxZ = points[i+2] * scaleFactor;
     };
 
     return [minX, maxX, minY, maxY, minZ, maxZ];

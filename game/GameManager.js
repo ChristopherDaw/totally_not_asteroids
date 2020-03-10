@@ -7,23 +7,33 @@ const GameState = {
 var Game = function (canvas, gl) {
     this.cameraAngle = 0;
 
-    readobj("bunny.obj");
+    // TODO: fix readobj
+    var playerObj = readobj("player.obj");
+    var playerPositions = playerObj[0];
+    var playerNormals = playerObj[1];
+    var playerTriIndices = playerObj[2];
 
     //Doing some testing, we can just use these as refrence to meshes and use the render function below multiple times
     //And get multiple renders of the same mesh
+    console.log(SpherePositions.length);
+    console.log(SphereNormals.length);
+    console.log(SphereTriIndices.length);
     this.sphereMesh = new ShadedTriangleMesh(gl, SpherePositions, SphereNormals, SphereTriIndices, LambertVertexSource, LambertFragmentSource);
 
-    this.cubeMesh = new ShadedTriangleMesh(gl, CubePositions, CubeNormals, CubeIndices, LambertVertexSource, LambertFragmentSource);
+    //this.cubeMesh = new ShadedTriangleMesh(gl, CubePositions, CubeNormals, CubeIndices, LambertVertexSource, LambertFragmentSource);
+    this.playerMesh = new ShadedTriangleMesh(gl, playerPositions, playerNormals, playerTriIndices, LambertVertexSource, LambertFragmentSource);
 
     /*Initialize Controls of Player*/
+    this.playerScaleMatrix = SimpleMatrix.scale(0.5, 0.5, 0.5);
     this.playerColor = [124, 254, 240];
     this.playerLocation = [0, 0, -6];       //starting location of the player, modified in runtime to hold current location
-    this.playerRotation = 90;               //starting angle of player in degrees (we only need one axis of rotation)
+    this.playerInitialRotation = 90;               //starting angle of player in degrees (we only need one axis of rotation)
+    this.playerRotation = 0;
     this.translateVector = [0, 0, 0];       //Vector used to start what keys/buttons are being pressed the value stored is how much to move in next frame
 
-    this.playerCollisionBox = generateBoundingBox(CubePositions);  //Bounding box to detect collisions around player [min x, max x, min y, max y, min z, max z]
+    this.playerCollisionBox = generateBoundingBox(playerPositions, 0.5);  //Bounding box to detect collisions around player [min x, max x, min y, max y, min z, max z]
     //this.playerCollisionBox *= 0.7;                                //Scale the player bounding box to make it easier
-    this.enemyCollisionBox = generateBoundingBox(SpherePositions); //Bounding box to detect collisions around enemy [min x, max x, min y, max y, min z, max z] 
+    this.enemyCollisionBox = generateBoundingBox(SpherePositions, 1); //Bounding box to detect collisions around enemy [min x, max x, min y, max y, min z, max z]
 
     /*Initialize enemies*/
     this.enemies = []
@@ -68,14 +78,16 @@ function GameLogic(self, gl, w,h) {
         SimpleMatrix.translate(0, 0, 6));
 
     /* Player movement code */
+    var flip = SimpleMatrix.rotate(180, 1, 0, 0);
+    var initialRotation = flip.multiply(SimpleMatrix.rotate(self.playerInitialRotation, 1, 0, 0));
     var angle = self.playerRotation + self.translateVector[0];
-    var rotation = SimpleMatrix.rotate(angle, 0, 0, 1);
+    var rotation = initialRotation.multiply(SimpleMatrix.rotate(angle, 0, 1, 0));
 
     //Calculate forward vector based on rotation
     //convert our angle to radians
-    angle = angle * Math.PI / 180;
+    angle = -(90 + angle) * Math.PI / 180;
     var forwardVector = [Math.cos(angle) * self.translateVector[1], Math.sin(angle) * self.translateVector[1], 0]
-    var playerTransform = SimpleMatrix.translate(self.playerLocation[0] + forwardVector[0], self.playerLocation[1] + forwardVector[1], self.playerLocation[2]).multiply(rotation);
+    var playerTransform = SimpleMatrix.translate(self.playerLocation[0] + forwardVector[0], self.playerLocation[1] + forwardVector[1], self.playerLocation[2]).multiply(rotation).multiply(self.playerScaleMatrix);
 
     //Update player location and roation after transformation
     self.playerLocation[0] += forwardVector[0];
@@ -103,7 +115,7 @@ function GameLogic(self, gl, w,h) {
             //continue;
         }
         enemyTransform = enemy.translate;
-        
+
         self.sphereMesh.render(gl, enemyTransform, view, projection, enemy.color);
 
         //Detect if we are colliding with player
@@ -117,13 +129,13 @@ function GameLogic(self, gl, w,h) {
 
     //Implement game state that changes this whole render function depending on state
 
-    self.cubeMesh.render(gl, playerTransform, view, projection, self.playerColor);
+    self.playerMesh.render(gl, playerTransform, view, projection, self.playerColor);
 }
 
 function ResetGame (self){
     //Reset Player to defaults
-    self.playerLocation = [0, 0, -6];       
-    self.playerRotation = 90;               
+    self.playerLocation = [0, 0, -6];
+    self.playerRotation = 90;
     self.translateVector = [0, 0, 0];
 
     //Remove all enemies

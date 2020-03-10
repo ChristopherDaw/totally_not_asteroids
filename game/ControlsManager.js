@@ -7,13 +7,13 @@ var ControlsManager = {
             var keyCode = event.keyCode;
             switch (keyCode) {
             case 68, 39: //d
-                self.translateVector[0] = -2;
+                self.translateVector[0] = 3;
                 break;
             case 65, 37: //a
-                self.translateVector[0] = 2;
+                self.translateVector[0] = -3;
                 break;
             case 87, 38: //w
-                self.translateVector[1] = .08;
+                self.translateVector[1] = -.08;
                 break;
             }
         }, false);

@@ -41,26 +41,6 @@ function setupTask(canvasId, taskFunction, useGl) {
 
     var task = new taskFunction(canvas, gl);
 
-    var mouseDown = false;
-    var lastMouseY;
-    var mouseMoveListener = function(event) {
-        task.dragCamera(event.screenY - lastMouseY);
-        lastMouseY = event.screenY;
-    };
-    canvas.addEventListener('mousedown', function(event) {
-        if (!mouseDown && event.button == 0) {
-            mouseDown = true;
-            lastMouseY = event.screenY;
-            document.addEventListener('mousemove', mouseMoveListener);
-        }
-        event.preventDefault();
-    });
-    document.addEventListener('mouseup', function(event) {
-        if (mouseDown && event.button == 0) {
-            mouseDown = false;
-            document.removeEventListener('mousemove', mouseMoveListener);
-        }
-    });
 
     var renderLoop = function() {
         task.render(canvas, gl, renderWidth, renderHeight);

@@ -3,9 +3,9 @@
 
 function readobj(objID) {
 
-    var v = [];
-    var vn = [];
-    var f = [];
+    var positions = [];
+    var normals = [];
+    var triIndices = [];
 
     var objText = document.getElementById(objID).innerHTML;
     var lines = objText.split('\n');
@@ -20,10 +20,14 @@ function readobj(objID) {
             case "":
                 break;
             case "v":
-                v.push(+tokens[1], +tokens[2], +tokens[3]);
+                positions.push(+tokens[1]);
+                positions.push(+tokens[2]);
+                positions.push(+tokens[3]);
                 break;
             case "vn":
-                vn.push(+tokens[1], +tokens[2], +tokens[3]);
+                normals.push(+tokens[1]);
+                normals.push(+tokens[2]);
+                normals.push(+tokens[3]);
                 break;
             case "f":
                 var position = new Array(tokens.length-1)
@@ -31,16 +35,18 @@ function readobj(objID) {
                   var indices = tokens[j].split("/")
                   position[j-1] = (indices[0]|0)-1
                 }
-                f.push(position)
+                triIndices.push(position[0])
+                triIndices.push(position[1])
+                triIndices.push(position[2])
                 break;
             default:
                 throw new Error("unrecognized obj directive");
         }
     }
     var ret = [];
-    ret.push(v);
-    ret.push(vn);
-    ret.push(f);
+    ret.push(positions);
+    ret.push(normals);
+    ret.push(triIndices);
 
     return ret;
 }
