@@ -31,19 +31,28 @@ var Game = function (canvas, gl) {
     this.playerRotation = 0;
     this.translateVector = [0, 0, 0];       //Vector used to start what keys/buttons are being pressed the value stored is how much to move in next frame
 
-    this.playerCollisionBox = generateBoundingBox(playerPositions, 0.5);  //Bounding box to detect collisions around player [min x, max x, min y, max y, min z, max z]
-    //this.playerCollisionBox *= 0.7;                                //Scale the player bounding box to make it easier
-    this.enemyCollisionBox = generateBoundingBox(SpherePositions, 1); //Bounding box to detect collisions around enemy [min x, max x, min y, max y, min z, max z]
+    this.playerCollisionBox = generateBoundingBox(playerPositions, 0.5); //Bounding box to detect collisions around player [min x, max x, min y, max y, min z, max z]
+    //Scale our player collision box to make easier for player
+    for(var i = 0; i < this.playerCollisionBox.length; i++){
+        this.playerCollisionBox[i] *= 0.6;
+    }
+
+    this.enemyCollisionBox = generateBoundingBox(SpherePositions, 1);    //Bounding box to detect collisions around enemy [min x, max x, min y, max y, min z, max z]
+    
+    this.screenBounds = [-9.75,9.75,-4.85,4.85]                          //[min x, max x, min y, max y] initizliaed for standard 1080p screen dimensions
+    //Scale our bounds from 1080p dimensions to current screen dimensions
+    for(var i = 0; i < this.screenBounds.length; i++){
+        this.screenBounds[i] *= ((window.innerWidth/window.innerHeight)/ 2.049092849519744 )
+    }
 
     /*Initialize enemies*/
-    this.enemies = []
+    this.enemies = [] 
 
     //Declare self for events since context switches to global inside of events
     var self = this;
     ControlsManager.init(self);
 
     //Initialize Game State
-
     this.state = GameState.MENU;
 
     gl.enable(gl.DEPTH_TEST);
@@ -77,6 +86,17 @@ function GameLogic(self, gl, w,h) {
     var view = SimpleMatrix.rotate(self.cameraAngle, 1, 0, 0).multiply(
         SimpleMatrix.translate(0, 0, 6));
 
+    //Interpolate our translation values to zero if not pressed
+    //this creates the illusion of momentum
+    if( self.translateVector[0] != 5 && self.translateVector[0] > 0)
+        self.translateVector[0] -= 0.25;
+    else if( self.translateVector[0] != -5 && self.translateVector[0] < 0)
+        self.translateVector[0] += 0.25;
+
+    if( self.translateVector[1] != -0.08 && self.translateVector[1] < 0)
+        self.translateVector[1] += 0.001;
+
+
     /* Player movement code */
     var flip = SimpleMatrix.rotate(180, 1, 0, 0);
     var initialRotation = flip.multiply(SimpleMatrix.rotate(self.playerInitialRotation, 1, 0, 0));
@@ -87,16 +107,18 @@ function GameLogic(self, gl, w,h) {
     //convert our angle to radians
     angle = -(90 + angle) * Math.PI / 180;
     var forwardVector = [Math.cos(angle) * self.translateVector[1], Math.sin(angle) * self.translateVector[1], 0]
-    var playerTransform = SimpleMatrix.translate(self.playerLocation[0] + forwardVector[0], self.playerLocation[1] + forwardVector[1], self.playerLocation[2]).multiply(rotation).multiply(self.playerScaleMatrix);
+
+    //Clamp our x and y positions within the screen bounds
+    var clampedPositon = [Math.min(Math.max(self.playerLocation[0] + forwardVector[0], self.screenBounds[0]), self.screenBounds[1]), 
+                          Math.min(Math.max(self.playerLocation[1] + forwardVector[1], self.screenBounds[2]), self.screenBounds[3])];
+
+    var playerTransform = SimpleMatrix.translate(clampedPositon[0], clampedPositon[1], self.playerLocation[2]).multiply(rotation).multiply(self.playerScaleMatrix);
 
     //Update player location and roation after transformation
-    self.playerLocation[0] += forwardVector[0];
-    self.playerLocation[1] += forwardVector[1];
+    self.playerLocation[0] = clampedPositon[0];
+    self.playerLocation[1] = clampedPositon[1];
     self.playerRotation += self.translateVector[0];
 
-
-    //could add "momentum to movement" by removing key up/touch end events (ControlsManager)
-    //and instead interpolating our translate vector to zero every frame here
 
     /* Enemy generation code */
     // spawn new enemy every 2.5 seconds (uses <= 15 because render isn't called every millisecond)
@@ -133,11 +155,15 @@ function GameLogic(self, gl, w,h) {
 }
 
 function ResetGame (self){
-    //Reset Player to defaults
-    self.playerLocation = [0, 0, -6];
-    self.playerRotation = 90;
-    self.translateVector = [0, 0, 0];
+    //Add a delay to ensure our game is reloaded
+    //Solves a glitch with momentum calculations
+    setTimeout(function(){ 
+        //Reset Player to defaults
+        self.playerLocation = [0, 0, -6];
+        self.playerRotation = 90;
+        self.translateVector = [0, 0, 0];
 
-    //Remove all enemies
-    self.enemies = []
+        //Remove all enemies
+        self.enemies = []
+    }, 1000);
 }

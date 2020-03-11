@@ -7,10 +7,10 @@ var ControlsManager = {
             var keyCode = event.keyCode;
             switch (keyCode) {
             case 68, 39: //d
-                self.translateVector[0] = 3;
+                self.translateVector[0] = 5;
                 break;
             case 65, 37: //a
-                self.translateVector[0] = -3;
+                self.translateVector[0] = -5;
                 break;
             case 87, 38: //w
                 self.translateVector[1] = -.08;
@@ -22,13 +22,13 @@ var ControlsManager = {
         
             switch (keyCode) {
             case 68, 39: //d
-                self.translateVector[0] = 0;
+                self.translateVector[0] = 4.85;
                 break;
             case 65, 37: //a
-                self.translateVector[0] = 0;
+                self.translateVector[0] = -4.85;
                 break;
             case 87, 38: //w
-                self.translateVector[1] = 0;
+                self.translateVector[1] = -0.075;
                 break;
             }
         }
@@ -37,28 +37,28 @@ var ControlsManager = {
         //Handle all phone buttons
         if(window.ismobile()){
             document.getElementById("right-button").addEventListener("touchstart", function (event) {
-                self.translateVector[0] = 1;
+                self.translateVector[0] = 5;
             }
             , false);
             document.getElementById("left-button").addEventListener("touchstart", function (event) {
-                self.translateVector[0] = -1;
+                self.translateVector[0] = -5;
             }
             , false);
             document.getElementById("up-button").addEventListener("touchstart", function (event) {
-                self.translateVector[1] = .05;
+                self.translateVector[1] = -.08;
             }
             , false);
 
             document.getElementById("right-button").addEventListener("touchend", function (event) {
-                self.translateVector[0] = 0;
+                self.translateVector[0] = 4.85;
             }
             , false);
             document.getElementById("left-button").addEventListener("touchend", function (event) {
-                self.translateVector[0] = 0;
+                self.translateVector[0] = -4.85;
             }
             , false);
             document.getElementById("up-button").addEventListener("touchend", function (event) {
-                self.translateVector[1] = 0;
+                self.translateVector[1] = -0.075;
             }
             , false);
         }

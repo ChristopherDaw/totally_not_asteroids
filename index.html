@@ -57,8 +57,10 @@
     <script>
         function setup() {
             setupTask("game", Game, true);
-
-            window.screen.orientation.lock('landscape');
+            
+            if(window.ismobile()){
+                window.screen.orientation.lock('landscape');
+            }
         }
     </script>
 
