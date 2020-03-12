@@ -1,3 +1,44 @@
+var FlatShadeSource = `#version 300 es
+
+    uniform mat4 Model;
+    uniform mat4 ModelViewProjection;
+    uniform vec3 DisplayColor;
+
+    in vec3 Position;
+    in vec3 Normal;
+
+    flat out vec3 Color;
+
+    // Constants you should use to compute the final color
+    const vec3 LightPosition = vec3(2, 2, -2);
+    const vec3 LightIntensity = vec3(3);
+    //const vec3 ka = 0.3*vec3(1, 0.5, 0.5);
+    //const vec3 kd = 0.7*vec3(1, 0.5, 0.5);
+
+    void main() {
+        vec3 ka = 0.3*(1.0/255.0)*DisplayColor;
+        vec3 kd = 0.7*(1.0/255.0)*DisplayColor;
+
+        gl_Position = ModelViewProjection*vec4(Position,1.0);
+
+        //Add ambient lighting to diffuse times light intensity (scaled by distance squared)
+        //Multiplied by the max of the light direction dotted with our normal and 0.0 (no negative lights)
+
+        //All model vectors are converted to world space using Model matrix
+        Color = ka + kd * (LightIntensity / pow(distance(vec4(LightPosition,1.0), Model*vec4(Position,1.0)), 2.0)) * max(dot(normalize(vec4(LightPosition,1.0) - Model*vec4(Position,1.0)), Model*vec4(Normal,0.0)), 0.4);
+    }
+`;
+var FlatFragmentSource = `#version 300 es
+    precision mediump  float;
+
+    flat in vec3 Color;
+    out vec4 fragColor;
+
+    void main() {
+        fragColor = vec4(Color[0], Color[1], Color[2], 1.0);
+    }
+`;
+
 var LambertVertexSource = `
     uniform mat4 Model;
     uniform mat4 ModelViewProjection;

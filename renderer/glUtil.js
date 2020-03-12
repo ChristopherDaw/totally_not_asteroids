@@ -7,7 +7,7 @@ function setupTask(canvasId, taskFunction, useGl) {
     
     if (useGl) {
         try {
-            var gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+            var gl = canvas.getContext("webgl2") || canvas.getContext("experimental-webgl");
         } catch (e) {}
         if (!gl) {
             console.log("Could not initialise WebGL");

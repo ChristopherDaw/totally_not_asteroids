@@ -13,19 +13,24 @@ var Game = function (canvas, gl) {
     var playerNormals = playerObj[1];
     var playerTriIndices = playerObj[2];
 
+    var enemyObj = readobj("enemy.obj");
+    var enemyPositions = enemyObj[0];
+    var enemyNormals = enemyObj[1];
+    var enemyTriIndices = enemyObj[2];
+    
+
     //Doing some testing, we can just use these as refrence to meshes and use the render function below multiple times
     //And get multiple renders of the same mesh
-    console.log(SpherePositions.length);
-    console.log(SphereNormals.length);
-    console.log(SphereTriIndices.length);
-    this.sphereMesh = new ShadedTriangleMesh(gl, SpherePositions, SphereNormals, SphereTriIndices, LambertVertexSource, LambertFragmentSource);
+    this.enemyMesh = new ShadedTriangleMesh(gl, enemyPositions, enemyNormals, enemyTriIndices, FlatShadeSource, FlatFragmentSource);
 
     //this.cubeMesh = new ShadedTriangleMesh(gl, CubePositions, CubeNormals, CubeIndices, LambertVertexSource, LambertFragmentSource);
-    this.playerMesh = new ShadedTriangleMesh(gl, playerPositions, playerNormals, playerTriIndices, LambertVertexSource, LambertFragmentSource);
+    this.playerMesh = new ShadedTriangleMesh(gl, playerPositions, playerNormals, playerTriIndices, FlatShadeSource, FlatFragmentSource);
+
+    this.sphereMesh = new ShadedTriangleMesh(gl, SpherePositions, SphereNormals, SphereTriIndices, FlatShadeSource, FlatFragmentSource);
 
     /*Initialize Controls of Player*/
     this.playerScaleMatrix = SimpleMatrix.scale(0.5, 0.5, 0.5);
-    this.playerColor = [124, 254, 240];
+    this.playerColor = [255,255,255];
     this.playerLocation = [0, 0, -6];       //starting location of the player, modified in runtime to hold current location
     this.playerInitialRotation = 90;               //starting angle of player in degrees (we only need one axis of rotation)
     this.playerRotation = 0;
@@ -37,8 +42,12 @@ var Game = function (canvas, gl) {
         this.playerCollisionBox[i] *= 0.6;
     }
 
-    this.enemyCollisionBox = generateBoundingBox(SpherePositions, 1);    //Bounding box to detect collisions around enemy [min x, max x, min y, max y, min z, max z]
-    
+    this.enemyCollisionBox = generateBoundingBox(enemyPositions, 1);    //Bounding box to detect collisions around enemy [min x, max x, min y, max y, min z, max z]
+    //Scale our enemy collision box to make easier for player
+    for(var i = 0; i < this.enemyCollisionBox.length; i++){
+        this.enemyCollisionBox[i] *= 0.85;
+    }
+
     this.screenBounds = [-9.75,9.75,-4.85,4.85]                          //[min x, max x, min y, max y] initizliaed for standard 1080p screen dimensions
     //Scale our bounds from 1080p dimensions to current screen dimensions
     for(var i = 0; i < this.screenBounds.length; i++){
@@ -60,15 +69,17 @@ var Game = function (canvas, gl) {
 
 //TODO: Edit shader code to allow for variable color (or textures??)
 Game.prototype.render = function (canvas, gl, w, h) {
-    gl.clearColor(1.0, 1.0, 1.0, 1.0);
+    gl.clearColor(0.025,0.025,0.04, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    
+    var self = this;
+    RenderBG(self, gl, w, h);
 
     switch (this.state) {
         case GameState.MENU:
             Menu();
             break;
         case GameState.GAME:
-            var self = this;
             GameLogic(self, gl, w, h);
             break;
         case GameState.END:
@@ -77,6 +88,17 @@ Game.prototype.render = function (canvas, gl, w, h) {
     }
 }
 
+function RenderBG(self, gl, w, h){
+    var projection = SimpleMatrix.perspective(45, w / h, 0.1, 100);
+
+    var view = SimpleMatrix.rotate(self.cameraAngle, 1, 0, 0).multiply(
+        SimpleMatrix.translate(0, 0, 6));
+
+    var rotation = SimpleMatrix.rotate(Date.now()/200, 0, 1, 0);
+    var sphereModel = SimpleMatrix.translate(0, 0, -15).multiply(rotation).multiply(SimpleMatrix.scale(7, 7, 7));
+
+    self.sphereMesh.render(gl, sphereModel, view, projection, [226,156,103]);
+}
 function GameLogic(self, gl, w,h) {
     // now is in milliseconds
     var now = Date.now();
@@ -136,34 +158,35 @@ function GameLogic(self, gl, w,h) {
             self.enemies.shift();
             //continue;
         }
-        enemyTransform = enemy.translate;
-
-        self.sphereMesh.render(gl, enemyTransform, view, projection, enemy.color);
-
+        
         //Detect if we are colliding with player
         if(BoxCollision(enemy.currentLocation, self.enemyCollisionBox, self.playerLocation, self.playerCollisionBox)){
             self.state = GameState.END;
             ResetGame(self);
         }
+
+        enemyTransform = enemy.translate;
+
+        self.enemyMesh.render(gl, enemyTransform, view, projection, enemy.color);
     });
-
-    //Create collision detection that we check every frame here
-
-    //Implement game state that changes this whole render function depending on state
 
     self.playerMesh.render(gl, playerTransform, view, projection, self.playerColor);
 }
 
 function ResetGame (self){
+    //Reset Player to defaults
+    self.playerLocation = [0, 0, -6];
+    self.playerRotation = 0;
+    self.translateVector = [0, 0, 0];
+
+    //Remove all enemies
+    self.enemies = []
     //Add a delay to ensure our game is reloaded
     //Solves a glitch with momentum calculations
     setTimeout(function(){ 
         //Reset Player to defaults
         self.playerLocation = [0, 0, -6];
-        self.playerRotation = 90;
+        self.playerRotation = 0;
         self.translateVector = [0, 0, 0];
-
-        //Remove all enemies
-        self.enemies = []
-    }, 1000);
+    }, 500);
 }

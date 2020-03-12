@@ -6,13 +6,16 @@ var ControlsManager = {
         window.addEventListener("keydown", function (event) {
             var keyCode = event.keyCode;
             switch (keyCode) {
-            case 68, 39: //d
+            case 39:
+            case 68: //d or right
                 self.translateVector[0] = 5;
                 break;
-            case 65, 37: //a
+            case 37:
+            case 65: //a or left
                 self.translateVector[0] = -5;
                 break;
-            case 87, 38: //w
+            case 38:
+            case 87: //w or up
                 self.translateVector[1] = -.08;
                 break;
             }
@@ -21,13 +24,16 @@ var ControlsManager = {
             var keyCode = event.keyCode;
         
             switch (keyCode) {
-            case 68, 39: //d
+            case 39:
+            case 68: //d or right
                 self.translateVector[0] = 4.85;
                 break;
-            case 65, 37: //a
+            case 37:
+            case 65: //a or left
                 self.translateVector[0] = -4.85;
                 break;
-            case 87, 38: //w
+            case 38:
+            case 87: //w or up
                 self.translateVector[1] = -0.075;
                 break;
             }

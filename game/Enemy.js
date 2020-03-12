@@ -14,9 +14,9 @@ class Enemy {
             case 1:
                 return [0, 0.125, 0];
             case 2:
-                return [0, 0.175, 0];
+                return [0, 0.150, 0];
             case 3:
-                return [0, 0.222, 0];
+                return [0, 0.175, 0];
             default:
                 return [0, 0.075, 0];
         }
@@ -62,16 +62,15 @@ class Enemy {
     get color() {
         switch (this.enemyType) {
             case 0:
-                return [3, 100, 70];
+                return [169, 188, 208];
             case 1:
-                return [62, 146, 204];
+                return [71,91,99];
             case 2:
-                return [238, 132, 52];
+                return [35,61,77];
             case 3:
-                return [216, 49, 91];
+                return [30,52,53];
         }
     }
-
     get age() {
         return this.borntime;
     }
@@ -87,7 +86,7 @@ class Enemy {
     transform() {
         // Get rotation matrix
         var angle = this.rotation + this.translateVector[0];
-        var rotation = SimpleMatrix.rotate(angle, 0, 0, 1);
+        var rotation = SimpleMatrix.rotate(angle * (Date.now()/10), 0, 0, 1);
 
         // Calculate tranform matrix
         var forwardVector= [Math.cos(angle) * this.translateVector[1], Math.sin(angle) * this.translateVector[1],0]
