@@ -10,7 +10,7 @@ var FlatShadeSource = `#version 300 es
     flat out vec3 Color;
 
     // Constants you should use to compute the final color
-    const vec3 LightPosition = vec3(2, 2, -2);
+    const vec3 LightPosition = vec3(2, 2, -0.5);
     const vec3 LightIntensity = vec3(3);
     //const vec3 ka = 0.3*vec3(1, 0.5, 0.5);
     //const vec3 kd = 0.7*vec3(1, 0.5, 0.5);
@@ -25,7 +25,8 @@ var FlatShadeSource = `#version 300 es
         //Multiplied by the max of the light direction dotted with our normal and 0.0 (no negative lights)
 
         //All model vectors are converted to world space using Model matrix
-        Color = ka + kd * (LightIntensity / pow(distance(vec4(LightPosition,1.0), Model*vec4(Position,1.0)), 2.0)) * max(dot(normalize(vec4(LightPosition,1.0) - Model*vec4(Position,1.0)), Model*vec4(Normal,0.0)), 0.4);
+        Color = ka + kd * (LightIntensity / pow(distance(vec4(LightPosition,1.0), Model*vec4(Position,1.0)), 2.0)) 
+        * max(dot(normalize(vec4(LightPosition,1.0) - Model*vec4(Position,1.0)), Model*vec4(Normal,0.0)), 0.0);
     }
 `;
 var FlatFragmentSource = `#version 300 es
@@ -50,7 +51,7 @@ var LambertVertexSource = `
     varying vec3 Color;
 
     // Constants you should use to compute the final color
-    const vec3 LightPosition = vec3(0, 0, 2);
+    const vec3 LightPosition = vec3(0, 0, 0);
     const vec3 LightIntensity = vec3(40);
     //const vec3 ka = 0.3*vec3(1, 0.5, 0.5);
     //const vec3 kd = 0.7*vec3(1, 0.5, 0.5);
