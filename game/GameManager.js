@@ -277,10 +277,8 @@ function updateLeaderboard(self) {
                         initials = initials + " ";
                         break;
                 }
-                console.log(initials);
 
                 newScore = initials + self.score.toString();
-                console.log(newScore);
                 updateScores(self, newScore);
 
                 makeLeaderboard(self);
@@ -301,7 +299,6 @@ function updateScores(self, newScore) {
         prevScore = parseInt(self.scores[i].substring(3,));
 
         if (score > prevScore) {
-            console.log("updating score");
             var topPart = self.scores.slice(0,i);
             var bottomPart = self.scores.slice(i,self.scores.length-1);
 
