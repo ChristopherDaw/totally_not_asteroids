@@ -5,9 +5,11 @@ const GameState = {
 }
 
 var Game = function (canvas, gl) {
+    this.scores = ['CJD10000', 'CCC7000', 'AJD50', 'SWW20', 'BJH10'];
+    makeLeaderboard(this);
+
     this.cameraAngle = 0;
 
-    // TODO: fix readobj
     var playerObj = readobj("player.obj");
     var playerPositions = playerObj[0];
     var playerNormals = playerObj[1];
@@ -17,7 +19,7 @@ var Game = function (canvas, gl) {
     var enemyPositions = enemyObj[0];
     var enemyNormals = enemyObj[1];
     var enemyTriIndices = enemyObj[2];
-    
+
 
     //Doing some testing, we can just use these as refrence to meshes and use the render function below multiple times
     //And get multiple renders of the same mesh
@@ -31,10 +33,10 @@ var Game = function (canvas, gl) {
     /*Initialize Controls of Player*/
     this.playerScaleMatrix = SimpleMatrix.scale(0.5, 0.5, 0.5);
     this.playerColor = [255,255,255];
-    this.playerLocation = [0, 0, -6];       //starting location of the player, modified in runtime to hold current location
-    this.playerInitialRotation = 90;               //starting angle of player in degrees (we only need one axis of rotation)
+    this.playerLocation = [0, 0, -6]; //starting location of the player, modified in runtime to hold current location
+    this.playerInitialRotation = 90;  //starting angle of player in degrees (we only need one axis of rotation)
     this.playerRotation = 0;
-    this.translateVector = [0, 0, 0];       //Vector used to start what keys/buttons are being pressed the value stored is how much to move in next frame
+    this.translateVector = [0, 0, 0]; //Vector used to start what keys/buttons are being pressed the value stored is how much to move in next frame
 
     this.playerCollisionBox = generateBoundingBox(playerPositions, 0.5); //Bounding box to detect collisions around player [min x, max x, min y, max y, min z, max z]
     //Scale our player collision box to make easier for player
@@ -55,7 +57,7 @@ var Game = function (canvas, gl) {
     }
 
     /*Initialize enemies*/
-    this.enemies = [] 
+    this.enemies = []
 
     //Declare self for events since context switches to global inside of events
     var self = this;
@@ -71,7 +73,7 @@ var Game = function (canvas, gl) {
 Game.prototype.render = function (canvas, gl, w, h) {
     gl.clearColor(0.025,0.025,0.04, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    
+
     var self = this;
     RenderBG(self, gl, w, h);
 
@@ -102,6 +104,7 @@ function RenderBG(self, gl, w, h){
 function GameLogic(self, gl, w,h) {
     // now is in milliseconds
     var now = Date.now();
+    var gameTime = now - self.startTime;
 
     var projection = SimpleMatrix.perspective(45, w / h, 0.1, 100);
 
@@ -119,48 +122,28 @@ function GameLogic(self, gl, w,h) {
         self.translateVector[1] += 0.001;
 
 
-    /* Player movement code */
-    var flip = SimpleMatrix.rotate(180, 1, 0, 0);
-    var initialRotation = flip.multiply(SimpleMatrix.rotate(self.playerInitialRotation, 1, 0, 0));
-    var angle = self.playerRotation + self.translateVector[0];
-    var rotation = initialRotation.multiply(SimpleMatrix.rotate(angle, 0, 1, 0));
+    // Player movement code
+    // This also updates the player location
+    var playerTransform = MovePlayer(self);
 
-    //Calculate forward vector based on rotation
-    //convert our angle to radians
-    angle = -(90 + angle) * Math.PI / 180;
-    var forwardVector = [Math.cos(angle) * self.translateVector[1], Math.sin(angle) * self.translateVector[1], 0]
-
-    //Clamp our x and y positions within the screen bounds
-    var clampedPositon = [Math.min(Math.max(self.playerLocation[0] + forwardVector[0], self.screenBounds[0]), self.screenBounds[1]), 
-                          Math.min(Math.max(self.playerLocation[1] + forwardVector[1], self.screenBounds[2]), self.screenBounds[3])];
-
-    var playerTransform = SimpleMatrix.translate(clampedPositon[0], clampedPositon[1], self.playerLocation[2]).multiply(rotation).multiply(self.playerScaleMatrix);
-
-    //Update player location and roation after transformation
-    self.playerLocation[0] = clampedPositon[0];
-    self.playerLocation[1] = clampedPositon[1];
-    self.playerRotation += self.translateVector[0];
-
+    UpdateScore(self, gameTime);
 
     /* Enemy generation code */
-    // spawn new enemy every 2.5 seconds (uses <= 15 because render isn't called every millisecond)
-    if (now % 2500 <= 15) {
-        // New enemy
-        self.enemies.push(new Enemy(self.playerLocation, now));
-    }
+    SpawnEnemies(self, gameTime);
 
     /* Enemy movement code */
     var enemyTransform;
     self.enemies.forEach(enemy => {
         // Delete enemies older than 10 seconds
-        if (now - enemy.age > 10000) {
+        if (gameTime - enemy.age > 10000) {
             //TODO: figure out a better way
             self.enemies.shift();
             //continue;
         }
-        
+
         //Detect if we are colliding with player
         if(BoxCollision(enemy.currentLocation, self.enemyCollisionBox, self.playerLocation, self.playerCollisionBox)){
+            updateLeaderboard(self);
             self.state = GameState.END;
             ResetGame(self);
         }
@@ -173,6 +156,55 @@ function GameLogic(self, gl, w,h) {
     self.playerMesh.render(gl, playerTransform, view, projection, self.playerColor);
 }
 
+function UpdateScore(self, gameTime) {
+    var scoreText = document.getElementById("score");
+
+    var fiveminutes = 1000*60*5;
+    var multiplier = Math.tanh(gameTime/fiveminutes);
+    var score = Math.round((gameTime / 100) * multiplier);
+    self.score = score;
+
+    scoreText.innerText = "Score: " + score;
+}
+
+function SpawnEnemies(self, gameTime) {
+    // spawn new enemy starting every 2.5 seconds decreasing over five minutes
+    // to every every 1 second
+    var fivemins = 1000 * 60 * 5
+    var spawnRate = 2500 - (1500 * Math.tanh(gameTime/fivemins));
+    spawnRate = Math.round(spawnRate);
+    if (gameTime % spawnRate <= 15) {
+        // New enemy
+        self.enemies.push(new Enemy(self.playerLocation, gameTime));
+    }
+}
+
+function MovePlayer(self) {
+    var flip = SimpleMatrix.rotate(180, 1, 0, 0);
+    var initialRotation = flip.multiply(SimpleMatrix.rotate(self.playerInitialRotation, 1, 0, 0));
+    var angle = self.playerRotation + self.translateVector[0];
+    var rotation = initialRotation.multiply(SimpleMatrix.rotate(angle, 0, 1, 0));
+
+    //Calculate forward vector based on rotation
+    //convert our angle to radians
+    angle = -(90 + angle) * Math.PI / 180;
+    var forwardVector = [Math.cos(angle) * self.translateVector[1], Math.sin(angle) * self.translateVector[1], 0]
+
+    //Clamp our x and y positions within the screen bounds
+    var clampedPositon = [Math.min(Math.max(self.playerLocation[0] + forwardVector[0], self.screenBounds[0]), self.screenBounds[1]),
+                          Math.min(Math.max(self.playerLocation[1] + forwardVector[1], self.screenBounds[2]), self.screenBounds[3])];
+
+    var playerTransform = SimpleMatrix.translate(clampedPositon[0], clampedPositon[1], self.playerLocation[2]).multiply(rotation).multiply(self.playerScaleMatrix);
+
+    //Update player location and roation after transformation
+    self.playerLocation[0] = clampedPositon[0];
+    self.playerLocation[1] = clampedPositon[1];
+    self.playerRotation += self.translateVector[0];
+
+
+    return playerTransform;
+}
+
 function ResetGame (self){
     //Reset Player to defaults
     self.playerLocation = [0, 0, -6];
@@ -183,10 +215,89 @@ function ResetGame (self){
     self.enemies = []
     //Add a delay to ensure our game is reloaded
     //Solves a glitch with momentum calculations
-    setTimeout(function(){ 
+    setTimeout(function(){
         //Reset Player to defaults
         self.playerLocation = [0, 0, -6];
         self.playerRotation = 0;
         self.translateVector = [0, 0, 0];
     }, 500);
+}
+
+function updateLeaderboard(self) {
+    var curScore = self.score;
+    var hiscore = false;
+    for (var i = 0; i < self.scores.length; i++) {
+        var toBeat = parseInt(self.scores[i].substring(3,));
+        if (curScore > toBeat) {
+            hiscore = true;
+            break;
+        }
+    }
+    if (!hiscore) {
+        return;
+    }
+
+    // Add listener to input and get user's name
+    var input = document.getElementById("hiscore");
+    var scorediv = document.getElementById("scoreblock");
+    scorediv.style.display = "block";
+    input.addEventListener("keyup", function(event) {
+        if (event.keyCode === 13) {
+            event.preventDefault();
+
+            var initials = input.value;
+            if (initials.length <= 3) {
+                switch(initials.length) {
+                    case 1:
+                        initials = initials + "  ";
+                        break;
+                    case 2:
+                        initials = initials + " ";
+                        break;
+                }
+                console.log(initials);
+
+                newScore = initials + self.score.toString();
+                console.log(newScore);
+                updateScores(self, newScore);
+
+                makeLeaderboard(self);
+
+                scorediv.style.display = "none";
+                input.value = "";
+            }
+        }
+    });
+
+}
+
+function updateScores(self, newScore) {
+    var initials = newScore.substring(0,3);
+    var score = parseInt(newScore.substring(3,));
+    var prevScore = 0;
+    for (var i = 0; i < self.scores.length; i++) {
+        prevScore = parseInt(self.scores[i].substring(3,));
+
+        if (score > prevScore) {
+            console.log("updating score");
+            var topPart = self.scores.slice(0,i);
+            var bottomPart = self.scores.slice(i,self.scores.length-1);
+
+            topPart.push(newScore);
+
+            self.scores = topPart.concat(bottomPart);
+            break;
+        }
+    }
+}
+
+function makeLeaderboard(self) {
+    var table = document.getElementById("leaderboard");
+    table.innerHTML = "";
+
+    for (var i = 0; i < self.scores.length; i++) {
+        var name = self.scores[i].substring(0,3);
+        var score = self.scores[i].substring(3,);
+        table.innerHTML += "<tr><td>" + name + "</td><td>" + score + "</td></tr>";
+    }
 }

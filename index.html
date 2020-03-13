@@ -47,17 +47,69 @@
             <h3>Totally Not</h3><h1>Asteroids</h1>
             <button class="button" id="start-button">Start</button>
         </div>
+        <div id="gameScore" class="gameScore" style="display: none;">
+            <h3 id="score">Score: </h3>
+        </div>
         <div id="end" class="gameState" style="display: none;">
-            <h1>Game Over</h1>
-            <p>*INSERT LEADERBOARD HERE*</p>
-            <button class="button" id="menu-button">Menu</button>
-            <button class="button" id="restart-button">Retry</button>
+            <div class="float" id="scoreblock" style="display:none;">
+                <h3>New High Score!</h3>
+                <input onkeydown="limit(this);" onkeyup="limit(this);" id="hiscore" name="hiscore">
+            </div>
+
+		    <div class="split left">
+                <div class="centered">
+                    <h2>Game Over</h2>
+                    <button class="button" id="menu-button">Menu</button>
+                    <button class="button" id="restart-button">Retry</button>
+                </div>
+            </div>
+
+            <div class="split right">
+                <div class="centered">
+                    <h2>High Scores</h2>
+                    <table id="leaderboard" class="leaderboard" style="width:100%;">
+                    <!--
+                        <tr>
+                            <td>CJD</th>
+                            <td>10000</th>
+                        </tr>
+                        <tr>
+                            <td>CCC</th>
+                            <td>7500</th>
+                        </tr>
+                        <tr>
+                            <td>AJD</th>
+                            <td>5000</th>
+                        </tr>
+                        <tr>
+                            <td>SWW</th>
+                            <td>3000</th>
+                        </tr>
+                        <tr>
+                            <td>BJH</th>
+                            <td>2000</th>
+                        </tr>
+                        -->
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
     <script>
+        function limit(element) {
+            var max_chars = 3;
+
+            if(element.value.length > max_chars) {
+                element.value = element.value.substr(0, max_chars);
+            }
+
+            element.value = element.value.toUpperCase();
+        }
+    </script>
+    <script>
         function setup() {
             setupTask("game", Game, true);
-            
+
             if(window.ismobile()){
                 window.screen.orientation.lock('landscape');
             }

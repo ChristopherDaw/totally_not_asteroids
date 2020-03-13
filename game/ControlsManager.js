@@ -71,9 +71,12 @@ var ControlsManager = {
     
         //Add listener to Start Button on Menu
         document.getElementById("start-button").addEventListener("click", function (event) {
-            document.getElementById("menu").style.display = "none"
-            document.getElementById("controls").style.display = "block"
+            document.getElementById("menu").style.display = "none";
+            document.getElementById("controls").style.display = "block";
+            document.getElementById("gameScore").style.display = "block";
 
+            self.score = 0;
+            self.startTime = Date.now();
             self.state = GameState.GAME;
         }
         , false);
@@ -82,7 +85,10 @@ var ControlsManager = {
         document.getElementById("restart-button").addEventListener("click", function (event) {
             document.getElementById("end").style.display = "none"
             document.getElementById("controls").style.display = "block"
+            document.getElementById("gameScore").style.display = "block"
 
+            self.score = 0;
+            self.startTime = Date.now();
             self.state = GameState.GAME;
         }
         , false);
