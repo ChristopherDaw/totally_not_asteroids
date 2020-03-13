@@ -6,7 +6,8 @@ function pointBoxCollision(point, location, box) {
 
 function BoxCollision(locationA, boxA, locationB, boxB) {
     return (locationA[0] + boxA[0] <= locationB[0] + boxB[1] && locationA[0] +boxA[1] >= locationB[0] +boxB[0]) &&
-           (locationA[1] + boxA[2] <= locationB[1] + boxB[3] && locationA[1] + boxA[3] >= locationB[1] + boxB[2]);
+           (locationA[1] + boxA[2] <= locationB[1] + boxB[3] && locationA[1] + boxA[3] >= locationB[1] + boxB[2]) &&
+           (locationA[2] + boxA[4] <= locationB[2] + boxB[5] && locationA[2] + boxA[5] >= locationB[2] + boxB[4]);
 }
 
 function generateBoundingBox(points, scaleFactor){
