@@ -23,13 +23,13 @@ body {
 }
 
 .controls-button {
-    font-size: 50px;
+    font-size: 5vh;
     cursor: pointer;
     display: inline-block;
-    width: 25vh;
-    height: 25vh;
+    width: 20vh;
+    height: 20vh;
     text-align: center;
-    margin: 25px;
+    margin: 1vh;
     border-radius: 15px;
     border: none;
     color: #FFFFFF;
@@ -112,11 +112,11 @@ label,input {
 }
 
 input {
-    font-size: 4vw;
+    font-size: 4vh;
     cursor: pointer;
     display: inline-block;
     width: 20vh;
-    height: 10;
+    height: 8.5vh;
     text-align: center;
     margin: 25px;
     border-radius: 15px;
@@ -129,13 +129,13 @@ input {
 }
 
 .button{
-    font-size: 4vw;
+    font-size: 4vh;
     cursor: pointer;
     display: inline-block;
     width: 20vh;
     height: 20vh;
     text-align: center;
-    margin: 25px;
+    margin: 1vh;
     border-radius: 15px;
     border: none;
     color: #FFFFFF;

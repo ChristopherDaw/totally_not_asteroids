@@ -5,7 +5,7 @@ const GameState = {
 }
 
 var Game = function (canvas, gl) {
-    this.scores = ['CJD10000', 'CCC7000', 'AJD50', 'SWW20', 'BJH10'];
+    this.scores = ['CJD10000', 'CMC7000', 'AJD50', 'SWW20', 'BJH10'];
     makeLeaderboard(this);
 
     this.cameraAngle = 0;
@@ -54,11 +54,12 @@ var Game = function (canvas, gl) {
         this.enemyCollisionBox[i] *= 0.85;
     }
 
-    this.screenBounds = [-9.75,9.75,-4.85,4.85]                          //[min x, max x, min y, max y] initizliaed for standard 1080p screen dimensions
-    //Scale our bounds from 1080p dimensions to current screen dimensions
-    for(var i = 0; i < this.screenBounds.length; i++){
-        this.screenBounds[i] *= ((window.innerWidth/window.innerHeight)/ 2.049092849519744 )
-    }
+    this.screenBounds = [1,1,1,1]                          //[min x, max x, min y, max y] scales based on standard 1080p screen dimensions
+
+    this.screenBounds[0] = window.innerWidth / (-200 * (window.innerWidth/ 1920))
+    this.screenBounds[1] = window.innerWidth / (200 * (window.innerWidth/ 1920))
+    this.screenBounds[2] = window.innerHeight / (-200 * (window.innerHeight / 900))
+    this.screenBounds[3] = window.innerHeight /(200 * (window.innerHeight / 900))
 
     /*Initialize enemies*/
     this.enemies = []
@@ -124,7 +125,7 @@ function GameLogic(self, gl, w,h) {
 
     if( self.translateVector[1] != -0.08 && self.translateVector[1] < 0)
         self.translateVector[1] += 0.001;
-    else if(self.translateVector[1] == -0.08 && Date.now() % 50 <= 15)
+    else if(self.translateVector[1] == -0.08 && Date.now() % 100 <= 15)
         AddSmoke(self);
         
 
